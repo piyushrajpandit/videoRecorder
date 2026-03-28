@@ -1,42 +1,45 @@
 import ScreenRecorder from "@/components/ScreenRecorder";
 import Link from "next/link";
 import { LayoutGrid, Video } from "lucide-react";
+import { cookies } from "next/headers";
+import SimpleAuth from "../components/SimpleAuth";
 
-export default function Home() {
+async function getCurrentUser(){
+  const cookiesStore = await cookies();
+  return cookiesStore.get('user')?.value || null;
+}
+
+export default async function Home() {
+  const currentUser = await getCurrentUser();
   return (
-    <main className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 relative">
-
-      {/* Navigation to Dashboard */}
-      <div className="absolute top-6 right-6 z-20">
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white rounded-lg transition"
-        >
-          <LayoutGrid className="w-4 h-4 group-hover:text-white transition" />
-          <span className="hidden sm:inline">My Recordings</span>
-        </Link>
-      </div>
-
-      <div className="z-10 w-full max-w-2xl flex flex-col items-center gap-8">
-
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-emerald-500 shadow">
-            <Video className="w-6 h-6 text-white" />
+    <main className="min-h-screen bg-slate-950 p-6 md:p-12 text-slate-200">
+      <div className="max-w-5xl mx-auto space-y-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-white">Screen Recorder</h1>
+            <p className="text-slate-400 mt-1">Record, upload, and summarize your videos with Mux + AI.</p>
           </div>
-
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
-            Loom Clone
-          </h1>
-
-          <p className="text-slate-400 text-sm md:text-base">
-            Next.js 15 + Mux + AI Transcripts
-          </p>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm"
+            >
+              <LayoutGrid className="w-4 h-4" />
+              Dashboard
+            </Link>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm text-white"
+            >
+              <Video className="w-4 h-4" />
+              My Videos
+            </Link>
+          </div>
         </div>
 
-        {/* Screen Recorder */}
-        <ScreenRecorder />
+        <SimpleAuth currentUser={currentUser} />
 
+        <ScreenRecorder />
       </div>
     </main>
   );

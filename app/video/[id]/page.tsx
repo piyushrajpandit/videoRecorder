@@ -3,7 +3,9 @@ import { getAssetStatus } from "@/app/actions";
 import MuxPlayerWrapper from "@/components/MuxPlayerWrapper";
 import VideoStatusPoller from "@/components/VideoStatusPoller";
 import ShareButton from "@/components/ShareButton";
+import VideoSummary from "@/VideoSummary";
 import { ArrowLeft, Download } from "lucide-react";
+import { getSignedPlaybackToken } from "@/app/actions";
 
 export default async function VideoPage({
   params,
@@ -19,6 +21,8 @@ export default async function VideoPage({
   const isTranscriptReady = transcriptStatus === "ready";
 
   const downloadUrl = `https://stream.mux.com/${playbackId}/high.mp4?download=screen-recording`;
+
+  const token = await getSignedPlaybackToken(playbackId);
 
   return (
     <main className="min-h-screen bg-slate-950 p-6 md:p-12 text-slate-200">
@@ -39,7 +43,7 @@ export default async function VideoPage({
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-black rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
             {isVideoReady ? (
-              <MuxPlayerWrapper playbackId={playbackId} />
+              <MuxPlayerWrapper playbackId={playbackId} token={token} />
             ) : (
               <VideoStatusPoller id={playbackId} />
             )}
@@ -57,6 +61,10 @@ export default async function VideoPage({
               Download
             </a>
           </div>
+
+          {isVideoReady && (
+            <VideoSummary playbackId={playbackId} />
+          )}
         </div>
 
         {/* Right Column: Transcript */}
@@ -65,7 +73,7 @@ export default async function VideoPage({
 
           {isTranscriptReady ? (
             <p className="text-slate-300 whitespace-pre-wrap">
-              {transcript}
+              {transcript.map((entry) => `${entry.time} ${entry.text}`).join('\n')}
             </p>
           ) : (
             <p className="text-slate-400">Generating transcript...</p>

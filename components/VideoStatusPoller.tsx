@@ -5,29 +5,22 @@ import { getAssetStatus } from '@/app/actions';
 import { Loader2 } from 'lucide-react';
 
 export default function VideoStatusPoller({
-    id, 
-    isVideoReady
+    id
 }:{
     id: string;
-    isVideoReady: boolean;
 }){
     const router = useRouter();
-    useEffect{() => {
+    useEffect(() => {
         const checkStatus = async () => {
-            const {status,transcriptStatus } = await getAssetStatus(id);
-            if(!isVideoReady && status === 'ready'){
-                router.refresh();
-
-            }
-            if(isVideoReady && transcriptStatus === 'ready'){
+            const {status, transcriptStatus } = await getAssetStatus(id);
+            if (status === 'ready' && transcriptStatus === 'ready') {
                 router.refresh();
             }
         };
         const interval = setInterval(checkStatus, 3000);
         return () => clearInterval(interval);
-    },[id, isVideoReady, router]);
+    }, [id, router]);
 
-    if(isVideoReady) return null;
     return (
         <div className="w-full h-full flex flex-col items-center justify-center gap-4">
             <Loader2 className="w-8 h-8 text-slate-400 animate-spin" />
